@@ -27,7 +27,7 @@ def main(args):
     else:
         for i in range(0, len(pair1)):
             wordPath = BFS(graph, pair1[i], pair2[i])
-            print(len(wordPath - 1))
+            print(len(wordPath) - 1)
 
 
 def buildGraph(words):
