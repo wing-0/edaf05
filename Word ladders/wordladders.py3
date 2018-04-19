@@ -1,4 +1,5 @@
 import sys
+from collections import deque
 testing = 0
 
 
@@ -59,9 +60,10 @@ def BFS(graph, startWord, endWord):
     for key in graph:
         visited[key] = 0
     visited[startWord] = 1
-    q = [startWord]
+    q = deque()
+    q.append(startWord)
     while q:
-        v = q.pop(0)
+        v = q.popleft()
         for w in graph[v]:
             if(not visited[w]):
                 visited[w] = 1
