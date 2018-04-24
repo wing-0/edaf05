@@ -24,9 +24,9 @@ public class spanning
 	private LinkedList<Integer[]> prim(int[][] graph, int rootNode)
 	{
 		LinkedList<Integer[]> tree = new LinkedList<Integer[]>();
-		ArrayList<Integer> nodesDone = new ArrayList<Integer>(graph.length);
+		LinkedList<Integer> nodesDone = new LinkedList<Integer>();
 		nodesDone.add(rootNode);
-		ArrayList<Integer> nodesLeft = new ArrayList<Integer>(graph.length);
+		LinkedList<Integer> nodesLeft = new LinkedList<Integer>();
 		for(int i = 0; i < graph.length; i++)
 		{
 			if(i != rootNode)
@@ -57,6 +57,14 @@ public class spanning
 			
 			// Maybe change nodesLeft to an array of booleans instead since nodes need
 			// to be removed in the stage that follows here...
+			// - Changed to LinkedList since the solution above would have been a problem
+			// for the check for nodesLeft to be empty in every while iteration
+
+			nodesLeft.remove(minOutNode);
+			nodesDone.add(minOutNode);
+
+			tree.add(new int[]{minInNode, minOutNode});
+
 		}
 	}
 	
