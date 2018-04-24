@@ -1,3 +1,4 @@
+import java.util.LinkedList;
 
 public class spanning
 {
@@ -7,25 +8,9 @@ public class spanning
 		
 	}
 	
-	private List<Highway> prim(graph, rootNode)
-	
-}
-
-class Highway
-{
-	private String city1;
-	private String city2;
-	private int dist;
-	
-	public Highway(String city1, String city2, int dist)
+	private LinkedList<Integer[]> prim(int[][] graph, int rootNode)
 	{
-		this.city1 = city1;
-		this.city2 = city2;
-		this.dist = dist;
+		LinkedList<Integer[]> tree = new LinkedList<Integer[]>();
 	}
-}
-
-class ReadGraph
-{
 	
 }
