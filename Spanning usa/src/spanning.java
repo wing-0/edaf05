@@ -39,15 +39,24 @@ public class spanning
 		{
 			// Search for a node in nodesLeft which minimizes distance
 			// to nodes in nodesDone
-			int minNode = -1;
+			int minInNode = -1;
+			int minOutNode = -1;
 			int minDist = Integer.MAX_VALUE;
 			for(int outNode : nodesLeft)
 			{
 				for(int inNode : nodesDone)
 				{
-					
+					if(graph[outNode][inNode] < minDist)
+					{
+						minInNode = inNode;
+						minOutNode = outNode;
+						minDist = graph[outNode][inNode];
+					}
 				}
 			}
+			
+			// Maybe change nodesLeft to an array of booleans instead since nodes need
+			// to be removed in the stage that follows here...
 		}
 	}
 	
