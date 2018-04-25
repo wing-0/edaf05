@@ -1,8 +1,10 @@
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class spanning2
@@ -56,59 +58,98 @@ public class spanning2
 	// Adjacency list: HashMap with node # as key, LinkedList<Integer[]> as value.
 	// The LinkedList contains Integer[] where [0] is node # and [1] is weight
 	
-	private static LinkedList<Integer[]> prim(int[][] graph, int rootNode)
+	private static LinkedList<Integer[]> prim(HashMap<Integer,LinkedList<Integer[]>> graph, int graphSize, int rootNode)
 	{
 		LinkedList<Integer[]> tree = new LinkedList<Integer[]>();
-		LinkedList<Integer> nodesDone = new LinkedList<Integer>();
-		nodesDone.add(rootNode);
-		LinkedList<Integer> nodesLeft = new LinkedList<Integer>();
-		for(int i = 0; i < graph.length; i++)
+		boolean[] nodesDone = new boolean[graphSize];
+		nodesDone[rootNode] = true;
+		int numberDone = 1;
+		PriorityQueue<node> Q = new PriorityQueue<node>(new nodeComparator());
+		for(int i = 0; i < graphSize; i++)
 		{
-			if(i != rootNode)
+			if(!nodesDone[i])
 			{
-				nodesLeft.add(i);
+				Q.add(new node(i, graph.get(i), nodesDone));
 			}
 		}
 		
-		while(!nodesLeft.isEmpty())
+		while(numberDone < graphSize)
 		{
-			// Search for a node in nodesLeft which minimizes distance
-			// to nodes in nodesDone
-			int minInNode = -1;
-			int minOutNode = -1;
-			int minDist = Integer.MAX_VALUE;
-			for(int outNode : nodesLeft)
+			
+			node nextNode = Q.poll();
+			nodesDone[nextNode.ID()] = true;
+			tree.add(new Integer[]{nextNode.minNode(), 
+					nextNode.ID(), nextNode.minDist()});
+			numberDone++;
+			
+			for(int i = 0; i < graphSize; i++)
 			{
-				for(int inNode : nodesDone)
+				if(!nodesDone[i])
 				{
-					if(graph[outNode][inNode] < minDist && graph[outNode][inNode] != 0)
-					{
-						minInNode = inNode;
-						minOutNode = outNode;
-						minDist = graph[outNode][inNode];
-					}
+					Q.add(new node(i, graph.get(i), nodesDone));
 				}
 			}
-			nodesLeft.remove(new Integer(minOutNode));
-			nodesDone.add(minOutNode);
-			tree.add(new Integer[]{minInNode, minOutNode, minDist});
 		}
 		return tree;
 	}
 	
-	private class node
+}
+
+class node
+{
+	private int nodeID;
+	private LinkedList<Integer[]> links;
+	private int minDist;
+	private int minNode;
+	
+	public node(int nodeID, LinkedList<Integer[]> links, boolean[] nodesDone)
 	{
-		private int nodeID;
-		private LinkedList<Integer[]> neighbors;
-		
-		public node(int nodeID, LinkedList<Integer[]> neighbors)
+		this.nodeID = nodeID;
+		minDist = Integer.MAX_VALUE;
+		minNode = -1;
+		for(Integer[] e : links)
 		{
-			this.nodeID = nodeID;
-			LinkedList
-			for(Integer[] e : neighbors)
+			this.links.add(e.clone());
+			if(nodesDone[e[0]] && e[1] < minDist)
 			{
-				
+				minNode = e[0];
+				minDist = e[1];
 			}
+		}
+	}
+	
+	public int ID()
+	{
+		return nodeID;
+	}
+	
+	public int minNode()
+	{
+		return minNode;
+	}
+	
+	public int minDist()
+	{
+		return minDist;
+	}
+	
+}
+
+class nodeComparator implements Comparator<node>
+{
+	@Override
+	public int compare(node n1, node n2) {
+		if(n1.minDist() < n2.minDist())
+		{
+			return -1;
+		}
+		else if(n1.minDist() > n2.minDist())
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
 		}
 	}
 	
