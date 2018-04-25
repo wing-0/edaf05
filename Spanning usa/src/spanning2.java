@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 
@@ -16,37 +17,56 @@ public class spanning2
 		{
 			BufferedReader in = new BufferedReader(new FileReader(new File(args[0])));
 			String currentLine;
+			ArrayList<String> cityNames = new ArrayList<String>();
 			HashMap<String, Integer> cities = new HashMap<String, Integer>();
 			HashMap<Integer, LinkedList<Integer[]>> adjList = new HashMap<Integer, LinkedList<Integer[]>>();
 			int i = 0;
+			currentLine = in.readLine();
 			
-			while ((currentLine = in.readLine()) != null && currentLine.charAt(currentLine.length() - 1) != ']') 
+			while (currentLine != null && currentLine.charAt(currentLine.length() - 1) != ']') 
 			{
 				// havent dealt with ""
 				currentLine = currentLine.trim();
 				cities.put(currentLine, i);
+				cityNames.add(i, currentLine);
 				adjList.put(i, new LinkedList<Integer[]>());
 				i++;
+				System.out.println(currentLine);
+				currentLine = in.readLine();
 			}
 			
-			while ((currentLine = in.readLine()) != null && currentLine.charAt(currentLine.length() - 1) == ']') 
+			while (currentLine != null && currentLine.charAt(currentLine.length() - 1) == ']') 
 			{
 				String[] temp1 = currentLine.split("--");
 				int city1 = cities.get(temp1[0]);
 				String[] temp2 = temp1[1].split(" \\[");
 				int city2 = cities.get(temp2[0]);
 				int dist = Integer.parseInt(temp2[1].substring(0, temp2[1].length() - 1));
-				adjList.get(city1).add({city2, dist});
+				adjList.get(city1).add(new Integer[]{city2, dist});
+				adjList.get(city2).add(new Integer[] {city1, dist});
+				System.out.println(currentLine);
+				currentLine = in.readLine();
 			}
 			in.close();
-			LinkedList<Integer[]> tree = prim(adjList, 0);
+			
+//			for(int k = 0; k < i; k++)
+//			{
+//				System.out.print(cityNames.get(k) + ": ");
+//				for(Integer[] e : adjList.get(k))
+//				{
+//					System.out.print(cityNames.get(e[0]) + " (" + e[1] + "), ");
+//				}
+//				System.out.println();
+//			}
+			System.out.print("ha");
+			LinkedList<Integer[]> tree = prim(adjList, i, 0);
 			int len = 0;
 			for(Integer[] link : tree)
 			{
 				len += link[2];
-				//System.out.print(link[0] + "--" + link[1] + ": " + link[2] + "; ");
+//				System.out.print(link[0] + "--" + link[1] + ": " + link[2] + "; ");
 			}
-			System.out.println("\n" + len);
+			System.out.println(len);
 			
 		}
 		catch (IOException e) 
@@ -71,25 +91,32 @@ public class spanning2
 			if(!nodesDone[i])
 			{
 				Q.add(new node(i, graph.get(i), nodesDone));
+//				System.out.print(i + " " + Q.peek().ID() + ": " + Q.peek().minDist() + ", ");
 			}
 		}
 		
 		while(numberDone < graphSize)
 		{
+			node nextNode;
+			do{
+				nextNode = Q.poll();
+			} while(nodesDone[nextNode.ID()]);
 			
-			node nextNode = Q.poll();
 			nodesDone[nextNode.ID()] = true;
 			tree.add(new Integer[]{nextNode.minNode(), 
 					nextNode.ID(), nextNode.minDist()});
 			numberDone++;
+//			System.out.println("Polled " + nextNode.ID());
 			
 			for(int i = 0; i < graphSize; i++)
 			{
 				if(!nodesDone[i])
 				{
 					Q.add(new node(i, graph.get(i), nodesDone));
+//					System.out.print(i + " " + Q.peek().ID() + ": " + Q.peek().minDist() + ", ");
 				}
 			}
+//			System.out.println("\n");
 		}
 		return tree;
 	}
@@ -106,11 +133,12 @@ class node
 	public node(int nodeID, LinkedList<Integer[]> links, boolean[] nodesDone)
 	{
 		this.nodeID = nodeID;
+		this.links = new LinkedList<Integer[]>();
 		minDist = Integer.MAX_VALUE;
 		minNode = -1;
 		for(Integer[] e : links)
 		{
-			this.links.add(e.clone());
+			this.links.add(e);
 			if(nodesDone[e[0]] && e[1] < minDist)
 			{
 				minNode = e[0];
@@ -140,13 +168,13 @@ class nodeComparator implements Comparator<node>
 {
 	@Override
 	public int compare(node n1, node n2) {
-		if(n1.minDist() < n2.minDist())
-		{
-			return -1;
-		}
-		else if(n1.minDist() > n2.minDist())
+		if(n1.minDist() > n2.minDist())
 		{
 			return 1;
+		}
+		else if(n1.minDist() < n2.minDist())
+		{
+			return -1;
 		}
 		else
 		{
