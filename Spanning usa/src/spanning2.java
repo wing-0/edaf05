@@ -31,7 +31,6 @@ public class spanning2
 				cityNames.add(i, currentLine);
 				adjList.put(i, new LinkedList<Integer[]>());
 				i++;
-				System.out.println(currentLine);
 				currentLine = in.readLine();
 			}
 			
@@ -44,7 +43,6 @@ public class spanning2
 				int dist = Integer.parseInt(temp2[1].substring(0, temp2[1].length() - 1));
 				adjList.get(city1).add(new Integer[]{city2, dist});
 				adjList.get(city2).add(new Integer[] {city1, dist});
-				System.out.println(currentLine);
 				currentLine = in.readLine();
 			}
 			in.close();
@@ -58,7 +56,6 @@ public class spanning2
 //				}
 //				System.out.println();
 //			}
-			System.out.print("ha");
 			LinkedList<Integer[]> tree = prim(adjList, i, 0);
 			int len = 0;
 			for(Integer[] link : tree)
