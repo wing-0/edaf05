@@ -3,6 +3,7 @@ import java.util.LinkedList;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
 
 public class spanning
 {
@@ -11,13 +12,20 @@ public class spanning
 	{
 		BufferedReader in = new BufferedReader(new FileReader(args[0]));
 		String currentLine;
-		Map<String,Integer> cities = new HashMap<String,Integer>();
+		HashMap<String,Integer> cities = new HashMap<String,Integer>();
 		int i = 0;
 
-		while(currentLine = in.readLine() != null 
-			&& currentLine.charAt(currentLine.length()-1) != "]")
+		while(currentLine = in.readLine() != null)
 		{
-			cities.put(currentLine, i)
+			if(currentLine.charAt(currentLine.length()-1) != "]")
+			{
+				// havent dealt with ""
+				cities.put(currentLine, i);	
+				i++;
+			} else 
+			{
+				
+			}
 		}
 	}
 	
