@@ -3,10 +3,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Comparator;
 import java.util.HashMap;
 
-public class spanning
+public class spanning2
 {
 	
 	public static void main(String[] args)
@@ -54,54 +53,8 @@ public class spanning
 		}		
 	}
 	
-	public static void tester()
-	{
-		// Adjacency matrix for the tinyEWG-alpha
-		int[][] g = new int[8][8];
-		
-		g[4][5] = 35;
-		g[5][4] = 35;
-		g[4][7] = 37;
-		g[7][4] = 37;
-		g[5][7] = 28;
-		g[7][5] = 28;
-		g[0][7] = 16;
-		g[7][0] = 16;
-		g[1][5] = 32;
-		g[5][1] = 32;
-		g[0][4] = 38;
-		g[4][0] = 38;
-		g[2][3] = 17;
-		g[3][2] = 17;
-		g[1][7] = 19;
-		g[7][1] = 19;
-		g[0][2] = 26;
-		g[2][0] = 26;
-		g[1][2] = 36;
-		g[2][1] = 36;
-		g[1][3] = 29;
-		g[3][1] = 29;
-		g[2][7] = 34;
-		g[7][2] = 34;
-		g[6][2] = 40;
-		g[2][6] = 40;
-		g[3][6] = 52;
-		g[6][3] = 52;
-		g[6][0] = 58;
-		g[0][6] = 58;
-		g[6][4] = 93;
-		g[4][6] = 93;
-		
-		for(int i = 0; i < g.length; i++)
-		{
-			for(int k = 0; k < g[i].length; k++)
-			{
-				System.out.print(g[i][k] + " ");
-			}
-			System.out.println();
-		}
-		
-	}
+	// Adjacency list: HashMap with node # as key, LinkedList<Integer[]> as value.
+	// The LinkedList contains Integer[] where [0] is node # and [1] is weight
 	
 	private static LinkedList<Integer[]> prim(int[][] graph, int rootNode)
 	{
@@ -141,6 +94,22 @@ public class spanning
 			tree.add(new Integer[]{minInNode, minOutNode, minDist});
 		}
 		return tree;
+	}
+	
+	private class node
+	{
+		private int nodeID;
+		private LinkedList<Integer[]> neighbors;
+		
+		public node(int nodeID, LinkedList<Integer[]> neighbors)
+		{
+			this.nodeID = nodeID;
+			LinkedList
+			for(Integer[] e : neighbors)
+			{
+				
+			}
+		}
 	}
 	
 }
