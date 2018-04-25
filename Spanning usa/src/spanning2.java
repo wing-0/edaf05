@@ -15,6 +15,7 @@ public class spanning2
 			BufferedReader in = new BufferedReader(new FileReader(new File(args[0])));
 			String currentLine;
 			HashMap<String, Integer> cities = new HashMap<String, Integer>();
+			HashMap<Integer, LinkedList<Integer[]>> adjList = new HashMap<Integer, LinkedList<Integer[]>>();
 			int i = 0;
 			
 			while ((currentLine = in.readLine()) != null && currentLine.charAt(currentLine.length() - 1) != ']') 
@@ -22,21 +23,21 @@ public class spanning2
 				// havent dealt with ""
 				currentLine = currentLine.trim();
 				cities.put(currentLine, i);
+				adjList.put(i, new LinkedList<Integer[]>());
 				i++;
 			}
-			int[][] adjMat = new int[i][i];
+			
 			while ((currentLine = in.readLine()) != null && currentLine.charAt(currentLine.length() - 1) == ']') 
 			{
 				String[] temp1 = currentLine.split("--");
-				String city1 = temp1[0];
+				int city1 = cities.get(temp1[0]);
 				String[] temp2 = temp1[1].split(" \\[");
-				String city2 = temp2[0];
+				int city2 = cities.get(temp2[0]);
 				int dist = Integer.parseInt(temp2[1].substring(0, temp2[1].length() - 1));
-				adjMat[cities.get(city1)][cities.get(city2)] = dist;
-				adjMat[cities.get(city2)][cities.get(city1)] = dist;
+				adjList.get(city1).add({city2, dist});
 			}
 			in.close();
-			LinkedList<Integer[]> tree = prim(adjMat, 0);
+			LinkedList<Integer[]> tree = prim(adjList, 0);
 			int len = 0;
 			for(Integer[] link : tree)
 			{
