@@ -1,10 +1,8 @@
 import java.util.LinkedList;
-import java.util.PriorityQueue;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class spanning
@@ -16,60 +14,36 @@ public class spanning
 		{
 			BufferedReader in = new BufferedReader(new FileReader(new File(args[0])));
 			String currentLine;
-			ArrayList<String> cityNames = new ArrayList<String>();
 			HashMap<String, Integer> cities = new HashMap<String, Integer>();
 			int i = 0;
-			currentLine = in.readLine();
 			
-			while (currentLine != null && currentLine.charAt(currentLine.length() - 1) != ']') 
+			while ((currentLine = in.readLine()) != null && currentLine.charAt(currentLine.length() - 1) != ']') 
 			{
 				// havent dealt with ""
 				currentLine = currentLine.trim();
 				cities.put(currentLine, i);
-				cityNames.add(i, currentLine);
 				i++;
-				System.out.println(currentLine);
-				currentLine = in.readLine();
 			}
-			
-			Node[] adjList = new Node[i];
-			for(int k = 0; k < i; k++)
-			{
-				adjList[k] = new Node(k);
-			}
-			
-			while (currentLine != null && currentLine.charAt(currentLine.length() - 1) == ']') 
+			int[][] adjMat = new int[i][i];
+			while ((currentLine = in.readLine()) != null && currentLine.charAt(currentLine.length() - 1) == ']') 
 			{
 				String[] temp1 = currentLine.split("--");
-				int city1 = cities.get(temp1[0]);
+				String city1 = temp1[0];
 				String[] temp2 = temp1[1].split(" \\[");
-				int city2 = cities.get(temp2[0]);
+				String city2 = temp2[0];
 				int dist = Integer.parseInt(temp2[1].substring(0, temp2[1].length() - 1));
-				adjList[city1].links.add(new Link(city2, dist));
-				adjList[city2].links.add(new Link(city1, dist));
-				System.out.println(currentLine);
-				currentLine = in.readLine();
+				adjMat[cities.get(city1)][cities.get(city2)] = dist;
+				adjMat[cities.get(city2)][cities.get(city1)] = dist;
 			}
 			in.close();
-			
-//			for(int k = 0; k < i; k++)
-//			{
-//				System.out.print(cityNames.get(k) + ": ");
-//				for(Integer[] e : adjList.get(k))
-//				{
-//					System.out.print(cityNames.get(e[0]) + " (" + e[1] + "), ");
-//				}
-//				System.out.println();
-//			}
-			System.out.println("ha");
-			LinkedList<Integer[]> tree = prim(adjList, i, 0);
+			LinkedList<Integer[]> tree = prim(adjMat, 0);
 			int len = 0;
 			for(Integer[] link : tree)
 			{
 				len += link[2];
-//				System.out.print(link[0] + "--" + link[1] + ": " + link[2] + "; ");
+				//System.out.print(link[0] + "--" + link[1] + ": " + link[2] + "; ");
 			}
-			System.out.println(len);
+			System.out.println("\n" + len);
 			
 		}
 		catch (IOException e) 
@@ -79,108 +53,93 @@ public class spanning
 		}		
 	}
 	
-	// Adjacency list: HashMap with node # as key, LinkedList<Integer[]> as value.
-	// The LinkedList contains Integer[] where [0] is node # and [1] is weight
+	public static void tester()
+	{
+		// Adjacency matrix for the tinyEWG-alpha
+		int[][] g = new int[8][8];
+		
+		g[4][5] = 35;
+		g[5][4] = 35;
+		g[4][7] = 37;
+		g[7][4] = 37;
+		g[5][7] = 28;
+		g[7][5] = 28;
+		g[0][7] = 16;
+		g[7][0] = 16;
+		g[1][5] = 32;
+		g[5][1] = 32;
+		g[0][4] = 38;
+		g[4][0] = 38;
+		g[2][3] = 17;
+		g[3][2] = 17;
+		g[1][7] = 19;
+		g[7][1] = 19;
+		g[0][2] = 26;
+		g[2][0] = 26;
+		g[1][2] = 36;
+		g[2][1] = 36;
+		g[1][3] = 29;
+		g[3][1] = 29;
+		g[2][7] = 34;
+		g[7][2] = 34;
+		g[6][2] = 40;
+		g[2][6] = 40;
+		g[3][6] = 52;
+		g[6][3] = 52;
+		g[6][0] = 58;
+		g[0][6] = 58;
+		g[6][4] = 93;
+		g[4][6] = 93;
+		
+		for(int i = 0; i < g.length; i++)
+		{
+			for(int k = 0; k < g[i].length; k++)
+			{
+				System.out.print(g[i][k] + " ");
+			}
+			System.out.println();
+		}
+		
+	}
 	
-	private static LinkedList<Integer[]> prim(Node[] graph, int graphSize, int rootNode)
+	private static LinkedList<Integer[]> prim(int[][] graph, int rootNode)
 	{
 		LinkedList<Integer[]> tree = new LinkedList<Integer[]>();
-		boolean[] nodesDone = new boolean[graphSize];
-		nodesDone[rootNode] = true;
-		int numberDone = 1;
-		PriorityQueue<Node> Q = new PriorityQueue<Node>();
+		LinkedList<Integer> nodesDone = new LinkedList<Integer>();
+		nodesDone.add(rootNode);
+		LinkedList<Integer> nodesLeft = new LinkedList<Integer>();
 		for(int i = 0; i < graph.length; i++)
 		{
-			if(!nodesDone[i])
+			if(i != rootNode)
 			{
-				graph[i].updateMin(nodesDone);
-				Q.add(graph[i]);
+				nodesLeft.add(i);
 			}
 		}
 		
-		while(numberDone < graphSize)
+		while(!nodesLeft.isEmpty())
 		{
-			Node nextNode;
-			do{
-				nextNode = Q.poll();
-			} while(nodesDone[nextNode.ID]);
-			
-			nodesDone[nextNode.ID] = true;
-			tree.add(new Integer[]{nextNode.minNode, 
-					nextNode.ID, nextNode.minLength});
-			numberDone++;
-//			System.out.println("Polled " + nextNode.ID);
-			
-			for(Link l : nextNode.links)
+			// Search for a node in nodesLeft which minimizes distance
+			// to nodes in nodesDone
+			int minInNode = -1;
+			int minOutNode = -1;
+			int minDist = Integer.MAX_VALUE;
+			for(int outNode : nodesLeft)
 			{
-				if(!nodesDone[l.endNode])
+				for(int inNode : nodesDone)
 				{
-					Node copyN = graph[l.endNode].copy();
-					copyN.updateMin(nodesDone);
-					Q.add(copyN);
-//					System.out.print(l.endNode + " " + Q.peek().ID + ": " + Q.peek().minLength + ", ");
+					if(graph[outNode][inNode] < minDist && graph[outNode][inNode] != 0)
+					{
+						minInNode = inNode;
+						minOutNode = outNode;
+						minDist = graph[outNode][inNode];
+					}
 				}
 			}
-//			System.out.println("\n");
+			nodesLeft.remove(new Integer(minOutNode));
+			nodesDone.add(minOutNode);
+			tree.add(new Integer[]{minInNode, minOutNode, minDist});
 		}
 		return tree;
-	}
-	
-}
-
-class Node implements Comparable<Node>
-{
-	int ID;
-	LinkedList<Link> links;
-	int minLength;
-	int minNode;
-	
-	public Node(int ID)
-	{
-		this.ID = ID;
-		this.links = new LinkedList<Link>();
-		minLength = Integer.MAX_VALUE;
-		minNode = -1;
-	}
-	
-	public void updateMin(boolean[] nodesDone)
-	{
-		for(Link l : links)
-		{
-			if(nodesDone[l.endNode] && l.length < minLength)
-			{
-				minLength = l.length;
-				minNode = l.endNode;
-			}
-		}
-	}
-	
-	public Node copy()
-	{
-		Node copyN = new Node(ID);
-		copyN.links = links;
-		copyN.minLength = minLength;
-		copyN.minNode = minNode;
-		return copyN;
-	}
-
-	@Override
-	public int compareTo(Node n)
-	{
-		return minLength - n.minLength;
-	}
-}
-
-class Link
-{
-	
-	int endNode;
-	int length;
-	
-	public Link(int endNode, int length)
-	{
-		this.endNode = endNode;
-		this.length = length;
 	}
 	
 }
