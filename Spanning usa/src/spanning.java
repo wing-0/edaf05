@@ -90,7 +90,21 @@ public class spanning
 		PriorityQueue<Node> Q = new PriorityQueue<Node>();
 		for(Link l : graph[rootNode].links)
 		{
-			graph[l.endNode].updateMin(nodesDone);
+			boolean updated = false;
+			int neigh = l.endNode;
+			LinkedList<Link> polled = new LinkedList<Link>();
+			while(!updated)
+			{
+				Link nodeL = graph[neigh].links.poll();
+				polled.add(nodeL);
+				if(nodeL.endNode == rootNode)
+				{
+					graph[neigh].minLength = nodeL.length;
+					graph[neigh].minNode = nodeL.endNode;
+					updated = true;
+				}
+			}
+			graph[neigh].links.addAll(polled);
 			Q.add(graph[l.endNode]);
 		}
 		
@@ -109,12 +123,32 @@ public class spanning
 			
 			for(Link l : nextNode.links)
 			{
-				if(!nodesDone[l.endNode])
+				int neigh = l.endNode;
+				if(!nodesDone[neigh])
 				{
-					Node copyN = graph[l.endNode].copy();
-					copyN.updateMin(nodesDone);
-					Q.add(copyN);
-//					System.out.print(l.endNode + " " + Q.peek().ID + ": " + Q.peek().minLength + ", ");
+					boolean updated = false;
+					LinkedList<Link> polled = new LinkedList<Link>();
+					while(!updated)
+					{
+						Link nodeL = graph[neigh].links.poll();
+						polled.add(nodeL);
+						if(!nodesDone[neigh] && nodesDone[nodeL.endNode])
+						{
+							if(nodeL.length < graph[neigh].minLength)
+							{
+								Q.remove(graph[neigh]);
+								graph[neigh].minLength = nodeL.length;
+								graph[neigh].minNode = nodeL.endNode;
+								graph[neigh].links.addAll(polled);
+								Q.add(graph[neigh]);
+							}
+							else
+							{
+								graph[neigh].links.addAll(polled);
+							}
+							updated = true;
+						}
+					}
 				}
 			}
 //			System.out.println("\n");
@@ -137,33 +171,6 @@ class Node implements Comparable<Node>
 		this.links = new PriorityQueue<Link>();
 		minLength = Integer.MAX_VALUE;
 		minNode = -1;
-	}
-	
-	public void updateMin(boolean[] nodesDone)
-	{
-		boolean updated = false;
-		LinkedList<Link> polled = new LinkedList<Link>();
-		while(!updated)
-		{
-			Link l = links.poll();
-			polled.add(l);
-			if(nodesDone[l.endNode])
-			{
-				minLength = l.length;
-				minNode = l.endNode;
-				updated = true;
-			}
-		}
-		links.addAll(polled);
-	}
-	
-	public Node copy()
-	{
-		Node copyN = new Node(ID);
-		copyN.links = links;
-		copyN.minLength = minLength;
-		copyN.minNode = minNode;
-		return copyN;
 	}
 
 	@Override
