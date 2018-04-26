@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class spanning
@@ -16,7 +15,7 @@ public class spanning
 		{
 			BufferedReader in = new BufferedReader(new FileReader(new File(args[0])));
 			String currentLine;
-			ArrayList<String> cityNames = new ArrayList<String>();
+//			ArrayList<String> cityNames = new ArrayList<String>();
 			HashMap<String, Integer> cities = new HashMap<String, Integer>();
 			int i = 0;
 			currentLine = in.readLine();
@@ -26,9 +25,9 @@ public class spanning
 				// havent dealt with ""
 				currentLine = currentLine.trim();
 				cities.put(currentLine, i);
-				cityNames.add(i, currentLine);
+//				cityNames.add(i, currentLine);
 				i++;
-				System.out.println(currentLine);
+//				System.out.println(currentLine);
 				currentLine = in.readLine();
 			}
 			
@@ -47,7 +46,7 @@ public class spanning
 				int dist = Integer.parseInt(temp2[1].substring(0, temp2[1].length() - 1));
 				adjList[city1].links.add(new Link(city2, dist));
 				adjList[city2].links.add(new Link(city1, dist));
-				System.out.println(currentLine);
+//				System.out.println(currentLine);
 				currentLine = in.readLine();
 			}
 			in.close();
@@ -61,7 +60,7 @@ public class spanning
 //				}
 //				System.out.println();
 //			}
-			System.out.println("ha");
+//			System.out.println("ha");
 			LinkedList<Integer[]> tree = prim(adjList, i, 0);
 			int len = 0;
 			for(Integer[] link : tree)
@@ -89,13 +88,10 @@ public class spanning
 		nodesDone[rootNode] = true;
 		int numberDone = 1;
 		PriorityQueue<Node> Q = new PriorityQueue<Node>();
-		for(int i = 0; i < graph.length; i++)
+		for(Link l : graph[rootNode].links)
 		{
-			if(!nodesDone[i])
-			{
-				graph[i].updateMin(nodesDone);
-				Q.add(graph[i]);
-			}
+			graph[l.endNode].updateMin(nodesDone);
+			Q.add(graph[l.endNode]);
 		}
 		
 		while(numberDone < graphSize)
@@ -131,28 +127,34 @@ public class spanning
 class Node implements Comparable<Node>
 {
 	int ID;
-	LinkedList<Link> links;
+	PriorityQueue<Link> links;
 	int minLength;
 	int minNode;
 	
 	public Node(int ID)
 	{
 		this.ID = ID;
-		this.links = new LinkedList<Link>();
+		this.links = new PriorityQueue<Link>();
 		minLength = Integer.MAX_VALUE;
 		minNode = -1;
 	}
 	
 	public void updateMin(boolean[] nodesDone)
 	{
-		for(Link l : links)
+		boolean updated = false;
+		LinkedList<Link> polled = new LinkedList<Link>();
+		while(!updated)
 		{
-			if(nodesDone[l.endNode] && l.length < minLength)
+			Link l = links.poll();
+			polled.add(l);
+			if(nodesDone[l.endNode])
 			{
 				minLength = l.length;
 				minNode = l.endNode;
+				updated = true;
 			}
 		}
+		links.addAll(polled);
 	}
 	
 	public Node copy()
@@ -171,7 +173,7 @@ class Node implements Comparable<Node>
 	}
 }
 
-class Link
+class Link implements Comparable<Link>
 {
 	
 	int endNode;
@@ -181,6 +183,11 @@ class Link
 	{
 		this.endNode = endNode;
 		this.length = length;
+	}
+
+	@Override
+	public int compareTo(Link l) {
+		return length - l.length;
 	}
 	
 }
