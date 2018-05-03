@@ -37,7 +37,7 @@ public class closestpair
 			in.close();
 //			System.out.println(Arrays.toString(points));
 			long time2 = System.currentTimeMillis();
-			//System.out.println("Inläsning: " + (time2-time1));
+			//System.out.println("Read file: " + (time2-time1));
 			double closest = closestPoints(points);
 			long time3 = System.currentTimeMillis();
 			//System.out.println("Closest: " + (time3-time2));
