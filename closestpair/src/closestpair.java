@@ -90,6 +90,7 @@ public class closestpair
 			}
 			else
 			{
+				t.index -= n/2;
 				Ry[r] = t;
 				r++;
 			}
