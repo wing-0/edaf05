@@ -24,9 +24,11 @@ public class closestpair
 			{
 				ArrayList<Point> ALpoints = new ArrayList<Point>();
 				while(currentLine!=null){
+					currentLine = currentLine.trim();
 					String[] parts = currentLine.split("\\s+");
 					ALpoints.add(new Point(Double.parseDouble(parts[1]),
 							Double.parseDouble(parts[2])));
+					currentLine = in.readLine();
 				}
 				points = ALpoints.toArray(new Point[0]);
 				dim = points.length;
@@ -59,18 +61,18 @@ public class closestpair
 //			long time3 = System.currentTimeMillis();
 			//System.out.println("Closest: " + (time3-time2));
 			System.out.println(args[0] + ": " + dim + " " + closest[0]);
-			if(isTSP)
+			if(!isTSP)
 			{
 				System.out.print("Between points ");
-				for(Point p : points)
+				for(int i = 0; i < points.length; i++)
 				{
-					if(p.x == closest[1] && p.y == closest[2])
+					if(points[i].x == closest[1] && points[i].y == closest[2])
 					{
-						System.out.print("(" + p.x + "," + p.y + ") and ");
+						System.out.print((i) + ", ");
 					}
-					if(p.x == closest[3] && p.y == closest[4])
+					if(points[i].x == closest[3] && points[i].y == closest[4])
 					{
-						System.out.print("(" + p.x + "," + p.y + ") ");
+						System.out.print(i + ", ");
 					}
 				}
 				System.out.println();
@@ -168,8 +170,8 @@ public class closestpair
 					closestP[0] = dist;
 					closestP[1] = Sy.get(i).x;
 					closestP[2] = Sy.get(i).y;
-					closestP[3] = Sy.get(i).x;
-					closestP[4] = Sy.get(i).y;
+					closestP[3] = Sy.get(i+k).x;
+					closestP[4] = Sy.get(i+k).y;
 				}
 			}
 		}
