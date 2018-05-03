@@ -9,7 +9,7 @@ public class closestpair
 {
 	public static void main(String[] args)
 	{
-		long time1 = System.currentTimeMillis();
+//		long time1 = System.currentTimeMillis();
 		try 
 		{
 			BufferedReader in = new BufferedReader(new FileReader(new File(args[0])));
@@ -36,10 +36,10 @@ public class closestpair
 			}
 			in.close();
 //			System.out.println(Arrays.toString(points));
-			long time2 = System.currentTimeMillis();
+//			long time2 = System.currentTimeMillis();
 			//System.out.println("Read file: " + (time2-time1));
 			double closest = closestPoints(points);
-			long time3 = System.currentTimeMillis();
+//			long time3 = System.currentTimeMillis();
 			//System.out.println("Closest: " + (time3-time2));
 			System.out.println(args[0] + ": " + dim + " " + closest);
 			
@@ -111,7 +111,7 @@ public class closestpair
 		
 		for(Tuple t : Py)
 		{
-			if(t.p.x > limit - delta && t.p.x < limit + delta)
+			if(Math.pow(t.p.x-limit,2) < delta)
 			{
 				Sy.add(t.p);
 			}
