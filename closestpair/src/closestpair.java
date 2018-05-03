@@ -63,7 +63,7 @@ public class closestpair
 		}
 		Arrays.sort(Py);
 		
-		return closest(Px, Py, Px.length);
+		return Math.sqrt(closest(Px, Py, Px.length));
 	}
 	
 	public static double closest(Point[] Px, Tuple[] Py, int n)
@@ -169,7 +169,7 @@ class Point implements Comparable<Point>
 	
 	public double distanceTo(Point p)
 	{
-		return Math.hypot(x-p.x, y-p.y);
+		return Math.pow(x-p.x,2) + Math.pow(y-p.y,2);
 	}
 
 	@Override
