@@ -9,6 +9,7 @@ public class closestpair
 {
 	public static void main(String[] args)
 	{
+		long time1 = System.currentTimeMillis();
 		try 
 		{
 			BufferedReader in = new BufferedReader(new FileReader(new File(args[0])));
@@ -35,7 +36,11 @@ public class closestpair
 			}
 			in.close();
 //			System.out.println(Arrays.toString(points));
+			long time2 = System.currentTimeMillis();
+			//System.out.println("Inläsning: " + (time2-time1));
 			double closest = closestPoints(points);
+			long time3 = System.currentTimeMillis();
+			//System.out.println("Closest: " + (time3-time2));
 			System.out.println(closest);
 			
 		}
