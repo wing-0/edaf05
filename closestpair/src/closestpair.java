@@ -41,7 +41,7 @@ public class closestpair
 			double closest = closestPoints(points);
 			long time3 = System.currentTimeMillis();
 			//System.out.println("Closest: " + (time3-time2));
-			System.out.println(closest);
+			System.out.println(args[0] + ": " + dim + " " + closest);
 			
 		}
 		catch (IOException e) 
