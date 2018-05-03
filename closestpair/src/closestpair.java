@@ -7,32 +7,49 @@ import java.util.Arrays;
 
 public class closestpair
 {
+	static boolean isTSP = false;
+	
 	public static void main(String[] args)
 	{
 //		long time1 = System.currentTimeMillis();
 		try 
 		{
+			
 			BufferedReader in = new BufferedReader(new FileReader(new File(args[0])));
 			String currentLine;
 			currentLine = in.readLine().trim();
 			int dim = 0;
-			
-			while (!currentLine.equals("NODE_COORD_SECTION")) 
+			Point[] points = new Point[0];
+			if(!isTSP)
 			{
-				if(currentLine.startsWith("DIM"))
-				{
-					dim = Integer.parseInt(currentLine.split(":")[1].trim());
+				ArrayList<Point> ALpoints = new ArrayList<Point>();
+				while(currentLine!=null){
+					String[] parts = currentLine.split("\\s+");
+					ALpoints.add(new Point(Double.parseDouble(parts[1]),
+							Double.parseDouble(parts[2])));
 				}
-				currentLine = in.readLine().trim();
+				points = ALpoints.toArray(new Point[0]);
+				dim = points.length;
 			}
-			Point[] points = new Point[dim];
-			
-			for(int i = 0; i < dim; i++)
+			else
 			{
-				currentLine = in.readLine().trim();
-				String[] parts = currentLine.split("\\s+");
-				points[i] = new Point(Double.parseDouble(parts[1]), 
-						Double.parseDouble(parts[2]));
+				while (!currentLine.equals("NODE_COORD_SECTION")) 
+				{
+					if(currentLine.startsWith("DIM"))
+					{
+						dim = Integer.parseInt(currentLine.split(":")[1].trim());
+					}
+					currentLine = in.readLine().trim();
+				}
+				points = new Point[dim];
+
+				for(int i = 0; i < dim; i++)
+				{
+					currentLine = in.readLine().trim();
+					String[] parts = currentLine.split("\\s+");
+					points[i] = new Point(Double.parseDouble(parts[1]), 
+							Double.parseDouble(parts[2]));
+				}
 			}
 			in.close();
 //			System.out.println(Arrays.toString(points));
