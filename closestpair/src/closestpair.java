@@ -7,6 +7,8 @@ import java.util.Arrays;
 
 public class closestpair
 {
+	static boolean isTSP = false;
+	
 	public static void main(String[] args)
 	{
 //		long time1 = System.currentTimeMillis();
@@ -38,10 +40,26 @@ public class closestpair
 //			System.out.println(Arrays.toString(points));
 //			long time2 = System.currentTimeMillis();
 			//System.out.println("Read file: " + (time2-time1));
-			double closest = closestPoints(points);
+			double[] closest = closestPoints(points);
 //			long time3 = System.currentTimeMillis();
 			//System.out.println("Closest: " + (time3-time2));
-			System.out.println(args[0] + ": " + dim + " " + closest);
+			System.out.println(args[0] + ": " + dim + " " + closest[0]);
+			if(isTSP)
+			{
+				System.out.print("Between points ");
+				for(Point p : points)
+				{
+					if(p.x == closest[1] && p.y == closest[2])
+					{
+						System.out.print("(" + p.x + "," + p.y + ") and ");
+					}
+					if(p.x == closest[3] && p.y == closest[4])
+					{
+						System.out.print("(" + p.x + "," + p.y + ") ");
+					}
+				}
+				System.out.println();
+			}
 			
 		}
 		catch (IOException e) 
@@ -51,7 +69,7 @@ public class closestpair
 		}		
 	}
 	
-	public static double closestPoints(Point[] points)
+	public static double[] closestPoints(Point[] points)
 	{
 		Point[] Px = Arrays.copyOf(points, points.length);
 		Arrays.sort(Px);
@@ -63,18 +81,22 @@ public class closestpair
 		}
 		Arrays.sort(Py);
 		
-		return Math.sqrt(closest(Px, Py, Px.length));
+		double[] result = closest(Px, Py, Px.length);
+		result[0] = Math.sqrt(result[0]);
+		return result;
+				
 	}
 	
-	public static double closest(Point[] Px, Tuple[] Py, int n)
+	public static double[] closest(Point[] Px, Tuple[] Py, int n)
 	{
 		if(n == 1)
 		{
-			return Double.MAX_VALUE;
+			return new double[] {Double.MAX_VALUE, -1, -1, -1, -1};
 		}
 		else if(n == 2)
 		{
-			return Px[0].distanceTo(Px[1]);
+			return new double[] {Px[0].distanceTo(Px[1]), Px[0].x, 
+					Px[0].y, Px[1].x, Px[1].y};
 		}
 		Point[] Lx = Arrays.copyOfRange(Px, 0, n/2);
 		Point[] Rx = Arrays.copyOfRange(Px, n/2, n);
@@ -101,9 +123,9 @@ public class closestpair
 			}
 		}
 		
-		double closestL = closest(Lx, Ly, n/2);
-		double closestR = closest(Rx, Ry, n-n/2);
-		double delta = Double.min(closestL, closestR);
+		double[] closestL = closest(Lx, Ly, n/2);
+		double[] closestR = closest(Rx, Ry, n-n/2);
+		double[] closestP =  closestL[0] < closestR[0] ? closestL : closestR;
 		
 		// Capacity of Sy is much larger than necessary, but we don't know
 		// how much "necessary" is
@@ -111,7 +133,7 @@ public class closestpair
 		
 		for(Tuple t : Py)
 		{
-			if(Math.pow(t.p.x-limit,2) < delta)
+			if(Math.pow(t.p.x-limit,2) < closestP[0])
 			{
 				Sy.add(t.p);
 			}
@@ -126,13 +148,17 @@ public class closestpair
 					break;
 				}
 				double dist = Sy.get(i).distanceTo(Sy.get(i+k));
-				if(dist < delta)
+				if(dist < closestP[0])
 				{
-					delta = dist;
+					closestP[0] = dist;
+					closestP[1] = Sy.get(i).x;
+					closestP[2] = Sy.get(i).y;
+					closestP[3] = Sy.get(i).x;
+					closestP[4] = Sy.get(i).y;
 				}
 			}
 		}
-		return delta;
+		return closestP;
 		
 	}
 }
