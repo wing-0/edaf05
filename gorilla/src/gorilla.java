@@ -1,8 +1,10 @@
+import java.awt.List;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 public class gorilla {
 	
@@ -75,8 +77,9 @@ public class gorilla {
 					};
 			
 		for(String[] test : tests){
+			System.out.print(test[0] + "--" + test[1] + ": ");
 			int sc = simScore(species.get(test[0]), species.get(test[1]));
-			System.out.println(test[0] + "--" + test[1] + ": " + sc);
+			System.out.println(sc);
 		}
 		
 		}
@@ -106,6 +109,118 @@ public class gorilla {
 				table[x][y] = Math.max(temp1, Math.max(temp2, temp3));
 			}
 		}
+		
+		LinkedList<Alignment> aList = optAl(new Alignment("",""), str1.length(), str2.length(), table, str1, str2);
+		System.out.println();
+//		for(Alignment a : aList)
+//		{
+//			System.out.println("Score: " + a.getScore(score, scoreInd));
+//			System.out.println(a + "\n");
+//		}
+		int ind = (int)Math.random()*aList.size();
+		System.out.println("Score: " + aList.get(ind).getScore(score, scoreInd));
+		System.out.println(aList.get(ind));
+		System.out.println(aList.size() + " alignments");
+		System.out.print ("Best score: ");
+		
 		return table[str1.length()][str2.length()];
+	}
+	
+	public static LinkedList<Alignment> optAl(Alignment al, int x, int y, int[][] table, String str1, String str2)
+	{
+		if(x==0 && y==0)
+		{
+			LinkedList<Alignment> temp = new LinkedList<Alignment>();
+			temp.add(al);
+			return temp;
+		}
+		if(x==0)
+		{
+			al.addHead('*', str2.charAt(y-1));
+			return optAl(al, x, y-1, table, str1, str2);
+		}
+		if(y==0)
+		{
+			al.addHead(str1.charAt(x-1), '*');
+			return optAl(al, x-1, y, table, str1, str2);
+		}
+		int nbrBranching = 0;
+		if(table[x-1][y-1] == table[x][y] - score[scoreInd.get(str1.charAt(x-1))][scoreInd.get(str2.charAt(y-1))]){
+			nbrBranching++;
+		}
+		if(table[x][y-1] == table[x][y] + 4){
+			nbrBranching++;
+		}
+		if(table[x-1][y] == table[x][y] + 4){
+			nbrBranching++;
+		}
+		LinkedList<Alignment> temp = new LinkedList<Alignment>();
+		if(table[x-1][y-1] == table[x][y] - score[scoreInd.get(str1.charAt(x-1))][scoreInd.get(str2.charAt(y-1))]){
+			if(nbrBranching > 1){
+				Alignment al2 = al.copy();
+				al2.addHead(str1.charAt(x-1), str2.charAt(y-1));
+				temp.addAll(optAl(al2, x-1, y-1, table, str1, str2));
+			} else{
+				al.addHead(str1.charAt(x-1), str2.charAt(y-1));
+				temp.addAll(optAl(al, x-1, y-1, table, str1, str2));
+			}
+		}
+		if(table[x][y-1] == table[x][y] + 4){
+			if(nbrBranching > 1){
+				Alignment al2 = al.copy();
+				al2.addHead('*', str2.charAt(y-1));
+				temp.addAll(optAl(al2, x, y-1, table, str1, str2));
+			} else {
+				al.addHead('*', str2.charAt(y-1));
+				temp.addAll(optAl(al, x, y-1, table, str1, str2));
+			}
+		}
+		if(table[x-1][y] == table[x][y] + 4){
+			if(nbrBranching > 1){
+				Alignment al2 = al.copy();
+				al2.addHead(str1.charAt(x-1), '*');
+				temp.addAll(optAl(al2, x-1, y, table, str1, str2));
+			} else {
+				al.addHead(str1.charAt(x-1), '*');
+				temp.addAll(optAl(al, x-1, y, table, str1, str2));
+			}
+		}
+		return temp;
+	}
+	
+}
+
+class Alignment 
+{
+	private StringBuilder sb1;
+	private StringBuilder sb2;
+	
+	public Alignment(String s1, String s2)
+	{
+		sb1 = new StringBuilder(s1);
+		sb2 = new StringBuilder(s2);
+	}
+	
+	public void addHead(char c1, char c2)
+	{
+		sb1.append(c1);
+		sb2.append(c2);
+	}
+	
+	public String toString()
+	{
+		return sb1.reverse().toString() + "\n" + sb2.reverse().toString();
+	}
+	
+	public Alignment copy(){
+		return new Alignment(sb1.toString(), sb2.toString());
+	}
+	
+	public int getScore(int[][] scoreTab, HashMap<Character,Integer> trans){
+		int score = 0;
+		for(int i = 0; i<sb1.length(); i++){
+			score += scoreTab[trans.get(sb1.charAt(i))][trans.get(sb2.charAt(i))];
+		}
+		return score;
 	}
 }
