@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 public class flow {
@@ -28,7 +29,7 @@ public class flow {
 			{
 				resList[i] = new LinkedList<Edge>();
 			}
-			for(int i = 0; i < nbrNodes; i++)
+			for(int i = 0; i < nbrEdges; i++)
 			{
 				currentLine = in.readLine().trim();
 				String[] e = currentLine.split("\\s+");
@@ -41,6 +42,7 @@ public class flow {
 			}
 			
 			in.close();
+			FordFulkerson(resList, capacities, flows, 0, nbrNodes-1);
 		
 		}
 		catch (IOException e) 
@@ -53,11 +55,46 @@ public class flow {
 	public static void FordFulkerson(LinkedList<Edge>[] resList, int[][] capacities,
 			int[][] flows, int start, int end)
 	{
-		
+		Integer[] path = BFS(resList, start, end);
+		System.out.println(Arrays.toString(path));
+		while(path != null)
+		{
+			int delta = Integer.MAX_VALUE;
+			for(int i = 0; i < path.length-1; i++)
+			{
+				delta = Math.min(delta, capacities[path[i]][path[i+1]] - 
+						flows[path[i]][path[i+1]]);
+			}
+			
+			for(int i = 0; i < path.length-1; i++)
+			{
+				// Regular graph
+				flows[path[i]][path[i+1]] += delta;
+				flows[path[i+1]][path[i]] -= delta;
+				
+				// Residual graph
+				for(Edge e : resList[i])
+				{
+					if(e.end == path[i+1])
+					{
+						e.cap -= delta;
+					}
+				}
+			}
+			path = BFS(resList, start, end);
+			System.out.println(Arrays.toString(path));
+		}
+		int maxflow = 0;
+		for(int i = 0; i < flows[0].length; i++)
+		{
+			maxflow += flows[0][i];
+		}
+		System.out.println(maxflow);
 	}
 	
 	public static Integer[] BFS(LinkedList<Edge>[] resList, int start, int end)
 	{
+		System.out.println("BFS!");
 		LinkedList<Integer> q = new LinkedList<Integer>();
 		q.add(start);
 		int[] pred = new int[resList.length];
@@ -81,9 +118,14 @@ public class flow {
 		int node = end;
 		while(node != start)
 		{
-			path.add(node);
+			path.push(node);
 			node = pred[node];
+			if(node == -1)
+			{
+				return null;
+			}
 		}
+		path.push(start);
 		return path.toArray(new Integer[path.size()]);
 	}
 	
