@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 
@@ -24,11 +25,12 @@ public class flow {
 			int nbrEdges = Integer.parseInt(in.readLine().trim());
 			int[][] capacities = new int[nbrNodes][nbrNodes];
 			int[][] flows = new int[nbrNodes][nbrNodes];
-			LinkedList<Edge>[] resList = new LinkedList[nbrNodes];
-			for(int i = 0; i < resList.length; i++)
-			{
-				resList[i] = new LinkedList<Edge>();
-			}
+			int[][] residual = new int[nbrNodes][nbrNodes];
+//			LinkedList<Edge>[] resList = new LinkedList[nbrNodes];
+//			for(int i = 0; i < resList.length; i++)
+//			{
+//				resList[i] = new LinkedList<Edge>();
+//			}
 			for(int i = 0; i < nbrEdges; i++)
 			{
 				currentLine = in.readLine().trim();
@@ -37,12 +39,12 @@ public class flow {
 				int end = Integer.parseInt(e[1]);
 				int cap = Integer.parseInt(e[2]);
 				cap = cap == -1 ? Integer.MAX_VALUE : cap;
-				resList[start].add(new Edge(start,end,cap));
+//				resList[start].add(new Edge(start,end,cap));
 				capacities[start][end] = cap;
+				residual[start][end] = cap;
 			}
-			
 			in.close();
-			FordFulkerson(resList, capacities, flows, 0, nbrNodes-1);
+			FordFulkerson(residual, capacities, flows, 0, nbrNodes-1);
 		
 		}
 		catch (IOException e) 
@@ -52,18 +54,17 @@ public class flow {
 		}
 	}
 	
-	public static void FordFulkerson(LinkedList<Edge>[] resList, int[][] capacities,
+	public static void FordFulkerson(int[][] residual, int[][] capacities,
 			int[][] flows, int start, int end)
 	{
-		Integer[] path = BFS(resList, start, end);
+		Integer[] path = BFS(residual, start, end);
 		System.out.println(Arrays.toString(path));
 		while(path != null)
 		{
 			int delta = Integer.MAX_VALUE;
 			for(int i = 0; i < path.length-1; i++)
 			{
-				delta = Math.min(delta, capacities[path[i]][path[i+1]] - 
-						flows[path[i]][path[i+1]]);
+				delta = Math.min(delta, residual[path[i]][path[i+1]]);
 			}
 			
 			for(int i = 0; i < path.length-1; i++)
@@ -73,31 +74,45 @@ public class flow {
 				flows[path[i+1]][path[i]] -= delta;
 				
 				// Residual graph
-				for(Edge e : resList[i])
-				{
-					if(e.end == path[i+1])
-					{
-						e.cap -= delta;
-					}
-				}
+				residual[path[i]][path[i+1]] -= delta;
+				residual[path[i+1]][path[i]] += delta;
 			}
-			path = BFS(resList, start, end);
+			path = BFS(residual, start, end);
 			System.out.println(Arrays.toString(path));
 		}
 		int maxflow = 0;
-		for(int i = 0; i < flows[0].length; i++)
+		LinkedList<Edge> minCut = new LinkedList<Edge>();
+		int[] pred = new int[residual.length];
+		BFS(residual, start, end, pred);
+		for(int i = 0; i < flows.length; i++)
 		{
 			maxflow += flows[0][i];
+			for(int k = 0; k < flows.length; k++)
+			{
+				if(pred[i] != -1 && pred[k] == -1 && flows[i][k] > 0)
+				{
+					minCut.add(new Edge(i,k));
+				}
+			}
 		}
 		System.out.println(maxflow);
+		for(Edge e : minCut)
+		{
+			System.out.println(e.start + " " + e.end + " " + flows[e.start][e.end]);
+		}
+		
 	}
 	
-	public static Integer[] BFS(LinkedList<Edge>[] resList, int start, int end)
+	public static Integer[] BFS(int[][] residual, int start, int end)
+	{
+		return BFS(residual, start, end, new int[residual.length]);
+	}
+	
+	public static Integer[] BFS(int[][] residual, int start, int end, int[] pred)
 	{
 		System.out.println("BFS!");
 		LinkedList<Integer> q = new LinkedList<Integer>();
 		q.add(start);
-		int[] pred = new int[resList.length];
 		for(int i = 0; i < pred.length; i++)
 		{
 			pred[i] = -1;
@@ -105,12 +120,12 @@ public class flow {
 		while(!q.isEmpty())
 		{
 			int node = q.poll();
-			for(Edge e : resList[node])
+			for(int i = 0; i < residual[node].length; i++)
 			{
-				if(pred[e.end] == -1 && e.end != start && e.cap > 0)
+				if(pred[i] == -1 && i != start && residual[node][i] > 0)
 				{
-					q.add(e.end);
-					pred[e.end] = e.start;
+					q.add(i);
+					pred[i] = node;
 				}
 			}
 		}
@@ -133,13 +148,12 @@ public class flow {
 
 class Edge{
 	
-	int start,end,cap;
+	int start,end;
 	
-	public Edge(int start, int end,int cap)
+	public Edge(int start, int end)
 	{
 		this.start = start;
 		this.end = end;
-		this.cap = cap;
 	}
 	
 }
