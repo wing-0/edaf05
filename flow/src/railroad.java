@@ -4,7 +4,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
 
-public class flow {
+public class railroad {
 	
 	public static void main(String[] args)
 	{
