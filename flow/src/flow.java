@@ -2,8 +2,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 
 public class flow {
@@ -23,14 +21,8 @@ public class flow {
 			}
 			
 			int nbrEdges = Integer.parseInt(in.readLine().trim());
-			int[][] capacities = new int[nbrNodes][nbrNodes];
 			int[][] flows = new int[nbrNodes][nbrNodes];
 			int[][] residual = new int[nbrNodes][nbrNodes];
-//			LinkedList<Edge>[] resList = new LinkedList[nbrNodes];
-//			for(int i = 0; i < resList.length; i++)
-//			{
-//				resList[i] = new LinkedList<Edge>();
-//			}
 			for(int i = 0; i < nbrEdges; i++)
 			{
 				currentLine = in.readLine().trim();
@@ -39,12 +31,11 @@ public class flow {
 				int end = Integer.parseInt(e[1]);
 				int cap = Integer.parseInt(e[2]);
 				cap = cap == -1 ? Integer.MAX_VALUE : cap;
-//				resList[start].add(new Edge(start,end,cap));
-				capacities[start][end] = cap;
 				residual[start][end] = cap;
+				residual[end][start] = cap;
 			}
 			in.close();
-			FordFulkerson(residual, capacities, flows, 0, nbrNodes-1);
+			FordFulkerson(residual, flows, 0, nbrNodes-1);
 		
 		}
 		catch (IOException e) 
@@ -54,11 +45,10 @@ public class flow {
 		}
 	}
 	
-	public static void FordFulkerson(int[][] residual, int[][] capacities,
-			int[][] flows, int start, int end)
+	public static void FordFulkerson(int[][] residual, int[][] flows, 
+			int start, int end)
 	{
 		Integer[] path = BFS(residual, start, end);
-		System.out.println(Arrays.toString(path));
 		while(path != null)
 		{
 			int delta = Integer.MAX_VALUE;
@@ -78,8 +68,8 @@ public class flow {
 				residual[path[i+1]][path[i]] += delta;
 			}
 			path = BFS(residual, start, end);
-			System.out.println(Arrays.toString(path));
 		}
+		
 		int maxflow = 0;
 		LinkedList<Edge> minCut = new LinkedList<Edge>();
 		int[] pred = new int[residual.length];
@@ -96,10 +86,10 @@ public class flow {
 			}
 		}
 		System.out.println(maxflow);
-		for(Edge e : minCut)
-		{
-			System.out.println(e.start + " " + e.end + " " + flows[e.start][e.end]);
-		}
+//		for(Edge e : minCut)
+//		{
+//			System.out.println(e.start + " " + e.end + " " + flows[e.start][e.end]);
+//		}
 		
 	}
 	
@@ -110,19 +100,19 @@ public class flow {
 	
 	public static Integer[] BFS(int[][] residual, int start, int end, int[] pred)
 	{
-		System.out.println("BFS!");
 		LinkedList<Integer> q = new LinkedList<Integer>();
 		q.add(start);
 		for(int i = 0; i < pred.length; i++)
 		{
 			pred[i] = -1;
 		}
+		pred[0] = 0;
 		while(!q.isEmpty())
 		{
 			int node = q.poll();
-			for(int i = 0; i < residual[node].length; i++)
+			for(int i = 0; i < residual.length; i++)
 			{
-				if(pred[i] == -1 && i != start && residual[node][i] > 0)
+				if(pred[i] == -1 && residual[node][i] > 0)
 				{
 					q.add(i);
 					pred[i] = node;
